@@ -1,1 +1,6 @@
-export { category } from '@/db/schema/category'
+export { categories } from '@/db/schema/category'
+export { comments } from '@/db/schema/comment'
+export { posts } from '@/db/schema/post'
+export { postTags } from '@/db/schema/post-tags'
+export { tags } from '@/db/schema/tag'
+export { users } from '@/db/schema/user'

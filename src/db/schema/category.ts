@@ -2,10 +2,10 @@ import { pgTable, serial, varchar } from 'drizzle-orm/pg-core'
 import { createInsertSchema } from 'drizzle-zod'
 import { z } from 'zod'
 
-export const category = pgTable('category', {
+export const categories = pgTable('categories', {
   id: serial('id').primaryKey(),
   name: varchar('name', { length: 255 }).notNull().unique()
 })
 
-export const categorySchema = createInsertSchema(category)
+export const categorySchema = createInsertSchema(categories)
 export type CategorySchema = z.infer<typeof categorySchema>
