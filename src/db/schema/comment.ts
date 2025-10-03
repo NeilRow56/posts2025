@@ -9,6 +9,8 @@ import {
 import { users } from './user'
 import { relations } from 'drizzle-orm'
 import { posts } from './post'
+import { createInsertSchema } from 'drizzle-zod'
+import z from 'zod'
 
 export const comments = pgTable('comments', {
   id: serial('id').primaryKey(),
@@ -36,3 +38,18 @@ export const commentRelations = relations(comments, ({ one }) => ({
     references: [posts.id]
   })
 }))
+
+export const commentSchema = createInsertSchema(comments, {
+  postId: schema => schema.min(1, { error: 'The postId must be provided' }),
+  content: schema => schema.min(1),
+  userId: schema => schema.min(1)
+}).pick({
+  postId: true,
+  content: true,
+  parentId: true,
+  userId: true,
+  id: true
+})
+export type CommentSchema = z.infer<typeof commentSchema>
+
+// We use "pick" so that zod knows we do not need to enter the createdAt and updatedAt values - even though the table describes them as "notNull"

@@ -1,4 +1,4 @@
-import { relations } from 'drizzle-orm'
+import { InferSelectModel, relations } from 'drizzle-orm'
 import {
   integer,
   pgTable,
@@ -7,6 +7,8 @@ import {
   varchar
 } from 'drizzle-orm/pg-core'
 import { posts } from './post'
+import { createInsertSchema } from 'drizzle-zod'
+import z from 'zod'
 
 export const users = pgTable('users', {
   id: serial('id').notNull().primaryKey(),
@@ -22,3 +24,34 @@ export const users = pgTable('users', {
 export const userRelations = relations(users, ({ many }) => ({
   posts: many(posts)
 }))
+
+const baseSchema = createInsertSchema(users, {
+  fullName: schema => schema.min(1),
+  password: schema => schema.min(1),
+  age: z.coerce.number().min(18).max(99),
+  email: z.email().min(1, { error: 'Invalid email format' })
+}).pick({ fullName: true, password: true, age: true, email: true })
+
+export const userSchema = z.union([
+  z.object({
+    mode: z.literal('signUp'),
+    email: baseSchema.shape.email,
+    password: baseSchema.shape.password,
+    fullName: baseSchema.shape.fullName,
+    age: baseSchema.shape.age
+  }),
+  z.object({
+    mode: z.literal('signIn'),
+    email: baseSchema.shape.email,
+    password: baseSchema.shape.password
+  }),
+  z.object({
+    mode: z.literal('update'),
+    fullName: baseSchema.shape.fullName,
+    age: baseSchema.shape.age,
+    id: z.number().min(1)
+  })
+])
+
+export type UserSchema = z.infer<typeof userSchema>
+export type SelectUserModel = InferSelectModel<typeof users>

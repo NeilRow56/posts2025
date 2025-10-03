@@ -3,6 +3,8 @@ import { posts } from './post'
 import { users } from './user'
 import { relations } from 'drizzle-orm'
 import { tags } from './tag'
+import { createInsertSchema } from 'drizzle-zod'
+import z from 'zod'
 
 export const postTags = pgTable(
   'post_to_tag',
@@ -22,6 +24,9 @@ export const postTagsRelations = relations(postTags, ({ one }) => ({
   tag: one(tags, { fields: [postTags.tagId], references: [tags.id] }),
   posts: one(posts, { fields: [postTags.postId], references: [posts.id] })
 }))
+
+export const postTagSchema = createInsertSchema(postTags)
+export type PostTagsSchema = z.infer<typeof postTagSchema>
 
 // THE ABOVE TABLE IS CREATED TO HELP UTILISE THE RELATIONSHIP BETWEEN POSTS AND TAGS
 
