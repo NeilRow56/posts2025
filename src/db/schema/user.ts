@@ -8,7 +8,7 @@ import {
 
 export const users = pgTable('users', {
   id: serial('id').notNull().primaryKey(),
-  fullName: varchar('fullName', { length: 255 }).notNull(),
+  fullName: varchar('full_name', { length: 255 }).notNull(),
   age: integer('age').notNull(),
   password: varchar('password', { length: 255 }).notNull(),
   email: varchar('email', { length: 255 }).notNull().unique(),
