@@ -7,6 +7,8 @@ import {
   timestamp
 } from 'drizzle-orm/pg-core'
 import { users } from './user'
+import { relations } from 'drizzle-orm'
+import { posts } from './post'
 
 export const comments = pgTable('comments', {
   id: serial('id').primaryKey(),
@@ -16,7 +18,21 @@ export const comments = pgTable('comments', {
     .references(() => users.id)
     .notNull(),
   content: text('content').notNull(),
-  postId: integer('post_id').notNull(),
+  postId: integer('post_id')
+    .references(() => posts.id)
+    .notNull(),
   createdAt: timestamp('created_at', { mode: 'string' }).notNull().defaultNow(),
   updatedAt: timestamp('updated_at', { mode: 'string' }).notNull().defaultNow()
 })
+
+//Each commment is linked to one user and one post
+export const commentRelations = relations(comments, ({ one }) => ({
+  user: one(users, {
+    fields: [comments.userId],
+    references: [users.id]
+  }),
+  post: one(posts, {
+    fields: [comments.postId],
+    references: [posts.id]
+  })
+}))
